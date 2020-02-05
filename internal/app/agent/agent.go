@@ -18,10 +18,15 @@ type Config struct {
 type Agent struct {
 	nc *nats.Conn
 	ec *nats.EncodedConn
+	id string
 }
 
 // New returns a new Agent.
 func New(c Config) (a Agent, err error) {
+	a = Agent{
+		id: "1", // TODO
+	}
+
 	if a.nc, a.ec, err = connect(c); err != nil {
 		return Agent{}, err
 	}
@@ -38,6 +43,12 @@ func (a Agent) Run() {
 		logrus.WithFields(connectionFields(c)).Print("messaging system connection closed")
 		wg.Done()
 	})
+
+	// Subscribe to relevant topics.
+	if err := a.subscribe(); err != nil {
+		logrus.WithError(err).Warn("failed to subscribe")
+		return
+	}
 
 	// Wait for messaging connection to close.
 	wg.Wait()

@@ -3,6 +3,8 @@
 package agent
 
 import (
+	"fmt"
+
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 )
@@ -57,4 +59,22 @@ func connect(c Config) (nc *nats.Conn, ec *nats.EncodedConn, err error) {
 		return nil, nil, err
 	}
 	return nc, ec, nil
+}
+
+// subscribe expresses interest in subjects that are relevant to the Agent.
+func (a Agent) subscribe() error {
+	subs := []struct {
+		subject string
+		handler nats.Handler
+	}{
+		{fmt.Sprintf("node.%s.job.start", a.id), a.jobStartHandler},
+	}
+	for _, s := range subs {
+		if _, err := a.ec.Subscribe(s.subject, s.handler); err != nil {
+			logrus.WithField("subject", s.subject).WithError(err).Warn("failed to subscribe")
+			return err
+		}
+		logrus.WithField("subject", s.subject).Info("subscribed")
+	}
+	return nil
 }
