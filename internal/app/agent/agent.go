@@ -7,6 +7,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
+	vol "github.com/sylabs/compute-agent/internal/pkg/volume"
 )
 
 // Config describes agent configuration.
@@ -18,6 +19,7 @@ type Config struct {
 type Agent struct {
 	nc *nats.Conn
 	ec *nats.EncodedConn
+	vm *vol.Manager
 	id string
 }
 
@@ -26,6 +28,8 @@ func New(c Config) (a Agent, err error) {
 	a = Agent{
 		id: "1", // TODO
 	}
+
+	a.vm = vol.NewManager()
 
 	if a.nc, a.ec, err = connect(c); err != nil {
 		return Agent{}, err

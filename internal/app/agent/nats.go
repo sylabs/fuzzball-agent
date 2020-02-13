@@ -68,6 +68,8 @@ func (a Agent) subscribe() error {
 		handler nats.Handler
 	}{
 		{fmt.Sprintf("node.%s.job.start", a.id), a.jobStartHandler},
+		{fmt.Sprintf("node.%s.volume.create", a.id), a.volumeCreateHandler},
+		{fmt.Sprintf("node.%s.volume.delete", a.id), a.volumeDeleteHandler},
 	}
 	for _, s := range subs {
 		if _, err := a.ec.Subscribe(s.subject, s.handler); err != nil {

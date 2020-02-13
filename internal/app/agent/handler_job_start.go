@@ -6,9 +6,11 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
+	vol "github.com/sylabs/compute-agent/internal/pkg/volume"
 )
 
 type job struct {
@@ -16,6 +18,12 @@ type job struct {
 	Name    string
 	Image   string
 	Command []string
+	Volumes []volumeRequirement
+}
+
+type volumeRequirement struct {
+	VolumeID string
+	Location string
 }
 
 func (a *Agent) jobStartHandler(subject, reply string, j *job) {
@@ -35,7 +43,7 @@ func (a *Agent) jobStartHandler(subject, reply string, j *job) {
 	}
 
 	// Run Job.
-	rc, err := runJob(context.TODO(), *j) // TODO: use context for cancellation?
+	rc, err := runJob(context.TODO(), *j, a.vm) // TODO: use context for cancellation?
 
 	// Send result.
 	status := "COMPLETED"
@@ -52,18 +60,36 @@ func (a *Agent) jobStartHandler(subject, reply string, j *job) {
 }
 
 // runJob runs the specified job, returning the process exitCode.
-func runJob(ctx context.Context, j job) (int, error) {
+func runJob(ctx context.Context, j job, vm *vol.Manager) (int, error) {
 	// Locate Singularity in PATH.
 	path, err := exec.LookPath("singularity")
 	if err != nil {
 		return 0, err
 	}
 
+	// Generate bind path args for volumes
+	var bindPaths []string
+	for _, v := range j.Volumes {
+		h, err := vm.GetHandle(v.VolumeID)
+		if err != nil {
+			return 0, err
+		}
+
+		bp := h + ":" + v.Location
+		bindPaths = append(bindPaths, bp)
+	}
+
 	// Build up arguments to Singularity.
 	args := []string{
 		"exec",
-		j.Image,
 	}
+
+	// Bind paths are a comma separated list.
+	if bindPaths != nil {
+		args = append(args, "--bind", strings.Join(bindPaths, ","))
+	}
+
+	args = append(args, j.Image)
 	args = append(args, j.Command...)
 
 	// Run Singularity.
