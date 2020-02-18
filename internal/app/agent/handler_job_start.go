@@ -5,6 +5,7 @@ package agent
 import (
 	"context"
 	"fmt"
+	"io"
 	"os/exec"
 	"strings"
 	"time"
@@ -43,8 +44,8 @@ func (a *Agent) jobStartHandler(subject, reply string, j *job) {
 	}
 
 	// Run Job.
-	rc, err := runJob(context.TODO(), *j, a.vm) // TODO: use context for cancellation?
-
+	var out strings.Builder
+	rc, err := runJob(context.TODO(), *j, a.vm, &out) // TODO: use context for cancellation?
 	// Send result.
 	status := "COMPLETED"
 	if err != nil {
@@ -53,14 +54,15 @@ func (a *Agent) jobStartHandler(subject, reply string, j *job) {
 	res := struct {
 		Status string
 		RC     int
-	}{status, rc}
+		Out    string
+	}{status, rc, out.String()}
 	if err := a.ec.Publish(fmt.Sprintf("job.%v.finished", j.ID), res); err != nil {
 		log.WithError(err).Warn("failed to report job finished")
 	}
 }
 
 // runJob runs the specified job, returning the process exitCode.
-func runJob(ctx context.Context, j job, vm *vol.Manager) (int, error) {
+func runJob(ctx context.Context, j job, vm *vol.Manager, output io.Writer) (int, error) {
 	// Locate Singularity in PATH.
 	path, err := exec.LookPath("singularity")
 	if err != nil {
@@ -93,7 +95,8 @@ func runJob(ctx context.Context, j job, vm *vol.Manager) (int, error) {
 	args = append(args, j.Command...)
 
 	// Run Singularity.
-	s, err := runCommand(ctx, path, args, []string{}, "", nil, nil, nil)
+
+	s, err := runCommand(ctx, path, args, []string{}, "", nil, output, output)
 	if err != nil {
 		if s != nil {
 			return s.ExitCode(), err
