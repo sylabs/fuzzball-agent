@@ -12,6 +12,7 @@ import (
 
 // Config describes agent configuration.
 type Config struct {
+	NodeConfig  *NodeConfig
 	NATSServers []string
 }
 
@@ -29,7 +30,9 @@ func New(c Config) (a Agent, err error) {
 		id: "1", // TODO
 	}
 
-	a.vm = vol.NewManager()
+	if a.vm, err = vol.NewManager(c.NodeConfig.VolumeConfig()); err != nil {
+		return Agent{}, err
+	}
 
 	if a.nc, a.ec, err = connect(c); err != nil {
 		return Agent{}, err
@@ -66,4 +69,7 @@ func (a Agent) Stop() {
 	} else if err != nil {
 		logrus.WithError(err).Warn("failed to drain")
 	}
+
+	// Clean up volumes
+	a.vm.Purge()
 }

@@ -17,8 +17,10 @@ type volume struct {
 
 func (a *Agent) volumeCreateHandler(subject, reply string, v volume) {
 	log := logrus.WithFields(logrus.Fields{
-		"subject": subject,
-		"reply":   reply,
+		"subject":    subject,
+		"reply":      reply,
+		"volumeID":   v.ID,
+		"volumeType": v.Type,
 	})
 	log.Print("handling volume creation")
 	defer func(t time.Time) {
@@ -44,8 +46,10 @@ func (a *Agent) volumeCreateHandler(subject, reply string, v volume) {
 
 func (a *Agent) volumeDeleteHandler(subject, reply string, v volume) {
 	log := logrus.WithFields(logrus.Fields{
-		"subject": subject,
-		"reply":   reply,
+		"subject":    subject,
+		"reply":      reply,
+		"volumeID":   v.ID,
+		"volumeType": v.Type,
 	})
 	log.Print("handling volume deletion")
 	defer func(t time.Time) {
