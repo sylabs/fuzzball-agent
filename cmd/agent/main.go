@@ -22,7 +22,8 @@ const (
 var (
 	version = "unknown"
 
-	natsURIs = flag.String("nats_uris", nats.DefaultURL, "Comma-separated list of NATS server URIs")
+	natsURIs   = flag.String("nats_uris", nats.DefaultURL, "Comma-separated list of NATS server URIs")
+	configPath = flag.String("config_path", "/etc/fuzzball/config.yaml", "Path to agent configuration on node")
 )
 
 // signalHandler catches SIGINT/SIGTERM to perform an orderly shutdown.
@@ -37,6 +38,22 @@ func signalHandler(a agent.Agent) {
 	a.Stop()
 }
 
+// parseNodeConfig parses the node configuration at the specified path.
+func parseNodeConfig() (*agent.NodeConfig, error) {
+	// Parse node configuration.
+	f, err := os.Open(*configPath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	nodeConfig, err := agent.Read(f)
+	if err != nil {
+		return nil, err
+	}
+	return nodeConfig, nil
+}
+
 func main() {
 	flag.Parse()
 
@@ -48,8 +65,14 @@ func main() {
 	log.Info("starting")
 	defer log.Info("stopped")
 
+	nodeConfig, err := parseNodeConfig()
+	if err != nil {
+		logrus.WithError(err).Error("failed to parse node configuration")
+		return
+	}
 	// Spin up agent.
 	c := agent.Config{
+		NodeConfig:  nodeConfig,
 		NATSServers: strings.Split(*natsURIs, ","),
 	}
 	a, err := agent.New(c)
