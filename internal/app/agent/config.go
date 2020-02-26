@@ -27,6 +27,10 @@ func Read(r io.Reader) (*NodeConfig, error) {
 	return &c, nil
 }
 
+func (nc *NodeConfig) SetVolumeConfig(vc vol.Config) {
+	nc.raw.VolumeSupport = vc
+}
+
 func (nc NodeConfig) VolumeConfig() vol.Config {
 	return nc.raw.VolumeSupport
 }

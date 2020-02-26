@@ -12,6 +12,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"github.com/sylabs/compute-agent/internal/app/agent"
+	"github.com/sylabs/compute-agent/internal/pkg/volume"
 )
 
 const (
@@ -38,11 +39,30 @@ func signalHandler(a agent.Agent) {
 	a.Stop()
 }
 
+// defaultNodeConfig will return a configuration where only ephemeral volumes are enabled
+// and will be located at the temporary directory of the system.
+func defaultNodeConfig() *agent.NodeConfig {
+	var nc agent.NodeConfig
+	vc := volume.Config{
+		volume.TypeEphemeral: volume.Spec{
+			Location: os.TempDir(),
+		},
+	}
+	nc.SetVolumeConfig(vc)
+	return &nc
+}
+
 // parseNodeConfig parses the node configuration at the specified path.
 func parseNodeConfig() (*agent.NodeConfig, error) {
 	// Parse node configuration.
 	f, err := os.Open(*configPath)
 	if err != nil {
+		if os.IsNotExist(err) {
+			logrus.WithFields(logrus.Fields{
+				"config": *configPath,
+			}).Warnf("node config not found, using default")
+			return defaultNodeConfig(), nil
+		}
 		return nil, err
 	}
 	defer f.Close()
