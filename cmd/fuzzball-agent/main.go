@@ -103,5 +103,7 @@ func main() {
 	go signalHandler(a)
 
 	// Main agent routine.
-	a.Run()
+	if err := a.Run(); err != nil {
+		logrus.WithError(err).Fatal("failed to start agent")
+	}
 }

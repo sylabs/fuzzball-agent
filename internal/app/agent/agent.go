@@ -42,23 +42,31 @@ func New(c Config) (a Agent, err error) {
 }
 
 // Run is the main routine for the Agent.
-func (a Agent) Run() {
+func (a Agent) Run() error {
 	// Use a WaitGroup to wait for messaging connection to drain.
+	// A closed connection indicates the agent has stopped
+	// and system resources should be released.
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 	a.nc.SetClosedHandler(func(c *nats.Conn) {
 		logrus.WithFields(connectionFields(c)).Print("messaging system connection closed")
+
+		// Clean up volumes after connection has been closed.
+		a.vm.Purge()
+
 		wg.Done()
 	})
 
 	// Subscribe to relevant topics.
 	if err := a.subscribe(); err != nil {
 		logrus.WithError(err).Warn("failed to subscribe")
-		return
+		return err
 	}
 
 	// Wait for messaging connection to close.
 	wg.Wait()
+
+	return nil
 }
 
 // Stop is used to gracefully stop the Agent.
@@ -69,7 +77,4 @@ func (a Agent) Stop() {
 	} else if err != nil {
 		logrus.WithError(err).Warn("failed to drain")
 	}
-
-	// Clean up volumes
-	a.vm.Purge()
 }
