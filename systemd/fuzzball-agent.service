@@ -1,0 +1,12 @@
+[Unit]
+Description=Fuzzball agent
+
+[Service]
+Type=simple
+User=fuzzball
+Restart=always
+RestartSec=30
+ExecStart=/usr/local/bin/fuzzball-agent
+
+[Install]
+WantedBy=multi-user.target

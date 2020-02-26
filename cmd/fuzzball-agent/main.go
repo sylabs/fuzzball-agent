@@ -87,8 +87,7 @@ func main() {
 
 	nodeConfig, err := parseNodeConfig()
 	if err != nil {
-		logrus.WithError(err).Error("failed to parse node configuration")
-		return
+		logrus.WithError(err).Fatal("failed to parse node configuration")
 	}
 	// Spin up agent.
 	c := agent.Config{
@@ -97,8 +96,7 @@ func main() {
 	}
 	a, err := agent.New(c)
 	if err != nil {
-		logrus.WithError(err).Error("failed to create agent")
-		return
+		logrus.WithError(err).Fatal("failed to create agent")
 	}
 
 	// Spin off signal handler to do graceful shutdown.

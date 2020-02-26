@@ -1,0 +1,26 @@
+# nfpm example config file
+name: "fuzzball-agent"
+arch: "amd64"
+platform: "linux"
+version: "v0.1.0"
+
+maintainer: "Sylabs Inc. <support@sylabs.io>"
+vendor: "Sylabs Inc."
+homepage: "https://sylabs.io"
+license: "Copyright (c) 2020, Sylabs, Inc. All rights reserved."
+
+description: |
+  The Fuzzball agent facilitates execution of jobs within workflows.
+
+bindir: "/usr/local/bin"
+files:
+  ./fuzzball-agent: "/usr/local/bin/fuzzball-agent"
+config_files:
+  ./systemd/fuzzball-agent.service: "/lib/systemd/system/fuzzball-agent.service"
+overrides:
+  deb:
+    scripts:
+      preinstall: ./scripts/preinstall.sh
+  rpm:
+    scripts:
+      preinstall: ./scripts/preinstall.sh
