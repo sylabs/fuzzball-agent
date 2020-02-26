@@ -112,12 +112,10 @@ func (m *Manager) create(id, t string) (handler, error) {
 
 	d, ok := m.support[t]
 	if !ok {
-		m.m.Unlock()
 		return nil, fmt.Errorf("unsupported volume type: %s", t)
 	}
 
 	if _, ok := m.volumes[id]; ok {
-		m.m.Unlock()
 		return nil, fmt.Errorf("volume %s already exists", id)
 	}
 
