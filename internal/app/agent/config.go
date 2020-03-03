@@ -5,7 +5,7 @@ package agent
 import (
 	"io"
 
-	vol "github.com/sylabs/compute-agent/internal/pkg/volume"
+	vol "github.com/sylabs/fuzzball-agent/internal/pkg/volume"
 	"gopkg.in/yaml.v3"
 )
 

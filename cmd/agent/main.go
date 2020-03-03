@@ -11,13 +11,13 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
-	"github.com/sylabs/compute-agent/internal/app/agent"
-	"github.com/sylabs/compute-agent/internal/pkg/volume"
+	"github.com/sylabs/fuzzball-agent/internal/app/agent"
+	"github.com/sylabs/fuzzball-agent/internal/pkg/volume"
 )
 
 const (
 	org  = "Sylabs"
-	name = "Compute Agent"
+	name = "Fuzzball Agent"
 )
 
 var (

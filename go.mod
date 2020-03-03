@@ -1,4 +1,4 @@
-module github.com/sylabs/compute-agent
+module github.com/sylabs/fuzzball-agent
 
 go 1.13
 
