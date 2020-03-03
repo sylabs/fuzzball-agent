@@ -7,7 +7,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
-	vol "github.com/sylabs/compute-agent/internal/pkg/volume"
+	vol "github.com/sylabs/fuzzball-agent/internal/pkg/volume"
 )
 
 // Config describes agent configuration.
