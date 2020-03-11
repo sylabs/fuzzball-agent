@@ -3,7 +3,7 @@ module github.com/sylabs/fuzzball-agent
 go 1.13
 
 require (
-	github.com/golang/protobuf v1.3.3 // indirect
+	github.com/golang/protobuf v1.3.4 // indirect
 	github.com/goreleaser/nfpm v1.2.0
 	github.com/magefile/mage v1.9.0
 	github.com/nats-io/nats-server/v2 v2.1.4 // indirect
