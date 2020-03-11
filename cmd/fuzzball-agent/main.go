@@ -11,6 +11,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 	"github.com/sylabs/fuzzball-agent/internal/app/agent"
+	"github.com/sylabs/fuzzball-agent/internal/pkg/cache"
 	"github.com/sylabs/fuzzball-agent/internal/pkg/volume"
 )
 
@@ -48,6 +49,17 @@ func defaultNodeConfig() *agent.NodeConfig {
 		},
 	}
 	nc.SetVolumeConfig(vc)
+
+	cacheDir, err := os.UserCacheDir()
+	if err != nil {
+		cacheDir = os.TempDir()
+	}
+
+	cc := cache.Config{
+		CacheDir: cacheDir,
+	}
+
+	nc.SetCacheConfig(cc)
 
 	// set default nats endpoint
 	nc.SetNATSServers([]string{nats.DefaultURL})

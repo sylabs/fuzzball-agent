@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	vol "github.com/sylabs/fuzzball-agent/internal/pkg/volume"
+	"github.com/sylabs/fuzzball-agent/internal/pkg/cache"
 )
 
 type job struct {
@@ -19,6 +19,8 @@ type job struct {
 	Image   string
 	Command []string
 	Volumes []volumeRequirement
+	Cached  bool
+	Hash    string
 }
 
 type volumeRequirement struct {
@@ -46,7 +48,7 @@ func (a *Agent) jobStartHandler(subject, reply string, j *job) {
 	s := stream{j.ID, a.nc}
 
 	// Run Job.
-	rc, err := runJob(context.TODO(), *j, a.vm, s) // TODO: use context for cancellation?
+	rc, err := a.runJob(context.TODO(), *j, s) // TODO: use context for cancellation?
 	// Send result.
 	status := "COMPLETED"
 	if err != nil {
@@ -62,7 +64,7 @@ func (a *Agent) jobStartHandler(subject, reply string, j *job) {
 }
 
 // runJob runs the specified job, returning the process exitCode.
-func runJob(ctx context.Context, j job, vm *vol.Manager, s stream) (int, error) {
+func (a *Agent) runJob(ctx context.Context, j job, s stream) (int, error) {
 	// Locate Singularity in PATH.
 	path, err := exec.LookPath("singularity")
 	if err != nil {
@@ -72,7 +74,7 @@ func runJob(ctx context.Context, j job, vm *vol.Manager, s stream) (int, error) 
 	// Generate bind path args for volumes
 	var bindPaths []string
 	for _, v := range j.Volumes {
-		h, err := vm.GetHandle(v.VolumeID)
+		h, err := a.vm.GetHandle(v.VolumeID)
 		if err != nil {
 			return 0, err
 		}
@@ -91,7 +93,17 @@ func runJob(ctx context.Context, j job, vm *vol.Manager, s stream) (int, error) 
 		args = append(args, "--bind", strings.Join(bindPaths, ","))
 	}
 
-	args = append(args, j.Image)
+	image := j.Image
+	if j.Cached {
+		// Lookup image in cache and ensure it exists
+		entry := a.c.GetEntry(cache.SIFType, j.Hash)
+		if !entry.Exists() {
+			return 0, fmt.Errorf("expected cached image does not exist in cache")
+		}
+		image = entry.Path()
+	}
+
+	args = append(args, image)
 	args = append(args, j.Command...)
 
 	// Run Singularity.
