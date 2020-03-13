@@ -27,7 +27,7 @@ func connectionFields(nc *nats.Conn) logrus.Fields {
 // connect opens a connection to NATS.
 func connect(c Config) (nc *nats.Conn, ec *nats.EncodedConn, err error) {
 	o := nats.GetDefaultOptions()
-	o.Servers = c.NATSServers
+	o.Servers = c.NodeConfig.NATSServers()
 
 	// Log disconnect/reconnect events.
 	o.DisconnectedErrCB = func(c *nats.Conn, err error) {
@@ -43,6 +43,9 @@ func connect(c Config) (nc *nats.Conn, ec *nats.EncodedConn, err error) {
 	}
 
 	// Connect to messaging system.
+	logrus.WithFields(logrus.Fields{
+		"natsServers": o.Servers,
+	}).Info("connecting to messaging system")
 	nc, err = o.Connect()
 	if err != nil {
 		return nil, nil, err

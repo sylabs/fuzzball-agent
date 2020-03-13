@@ -1,8 +1,8 @@
-# nfpm example config file
 name: "fuzzball-agent"
 arch: "amd64"
 platform: "linux"
-version: "v0.1.0"
+# TODO: programatically set this value from tag
+version: "v0.1.0-1"
 
 maintainer: "Sylabs Inc. <support@sylabs.io>"
 vendor: "Sylabs Inc."
@@ -17,6 +17,7 @@ files:
   ./fuzzball-agent: "/usr/local/bin/fuzzball-agent"
 config_files:
   ./systemd/fuzzball-agent.service: "/lib/systemd/system/fuzzball-agent.service"
+  ./config/default.yaml: "/etc/fuzzball/config.yaml"
 overrides:
   deb:
     scripts:

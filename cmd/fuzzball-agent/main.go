@@ -6,7 +6,6 @@ import (
 	"flag"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"github.com/nats-io/nats.go"
@@ -23,7 +22,6 @@ const (
 var (
 	version = "unknown"
 
-	natsURIs   = flag.String("nats_uris", nats.DefaultURL, "Comma-separated list of NATS server URIs")
 	configPath = flag.String("config_path", "/etc/fuzzball/config.yaml", "Path to agent configuration on node")
 )
 
@@ -43,12 +41,16 @@ func signalHandler(a agent.Agent) {
 // and will be located at the temporary directory of the system.
 func defaultNodeConfig() *agent.NodeConfig {
 	var nc agent.NodeConfig
+	// set volume configuration
 	vc := volume.Config{
 		volume.TypeEphemeral: volume.Spec{
 			Location: os.TempDir(),
 		},
 	}
 	nc.SetVolumeConfig(vc)
+
+	// set default nats endpoint
+	nc.SetNATSServers([]string{nats.DefaultURL})
 	return &nc
 }
 
@@ -89,10 +91,10 @@ func main() {
 	if err != nil {
 		logrus.WithError(err).Fatal("failed to parse node configuration")
 	}
+
 	// Spin up agent.
 	c := agent.Config{
-		NodeConfig:  nodeConfig,
-		NATSServers: strings.Split(*natsURIs, ","),
+		NodeConfig: nodeConfig,
 	}
 	a, err := agent.New(c)
 	if err != nil {
