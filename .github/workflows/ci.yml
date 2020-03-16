@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-env:
-  GOPRIVATE: github.com/sylabs/fuzzball-agent
 
 jobs:
   build-and-unit-test:
@@ -22,6 +20,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Build
-        run: go build ./...
+        run: go run ./mage-bootstrap.go build
       - name: Unit Test
-        run: go test -cover -race ./...
+        run: go run ./mage-bootstrap.go test
