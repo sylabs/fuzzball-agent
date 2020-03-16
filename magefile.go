@@ -19,6 +19,16 @@ func Install() error {
 	return sh.Run("go", "install", "./cmd/fuzzball-agent")
 }
 
+// Run runs the Agent using `go run`.
+func Run() error {
+	return sh.RunV(mg.GoCmd(), "run", "./cmd/fuzzball-agent/")
+}
+
+// Test runs unit tests using `go test`.
+func Test() error {
+	return sh.RunV(mg.GoCmd(), "test", "-cover", "-race", "./...")
+}
+
 // Deb builds a deb package.
 func Deb() error {
 	mg.Deps(Build)
