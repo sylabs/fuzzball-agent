@@ -1,8 +1,6 @@
 name: "fuzzball-agent"
 arch: "amd64"
 platform: "linux"
-# TODO: programatically set this value from tag
-version: "v0.1.0-1"
 
 maintainer: "Sylabs Inc. <support@sylabs.io>"
 vendor: "Sylabs Inc."

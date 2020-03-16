@@ -18,6 +18,7 @@ func makePackage(suffix string) error {
 	if err != nil {
 		return err
 	}
+	config.Version = version()
 
 	info, err := config.Get(suffix)
 	if err != nil {
