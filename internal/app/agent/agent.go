@@ -12,8 +12,7 @@ import (
 
 // Config describes agent configuration.
 type Config struct {
-	NodeConfig  *NodeConfig
-	NATSServers []string
+	NodeConfig *NodeConfig
 }
 
 // Agent contains the state of the agent.

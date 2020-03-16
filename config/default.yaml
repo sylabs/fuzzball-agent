@@ -1,0 +1,10 @@
+version: 0.1
+# Nats endpoints can be exposed here, the localhost is currently the default
+natsServers:
+  -   nats://localhost:4222
+volumeSupport:
+  ephemeral:
+    location: /tmp
+  # Here you can add a path to persistent storage for the agent to conditionally expose during workflow execution.
+  #persistent:
+  #  location: /path/to/persistent/storage

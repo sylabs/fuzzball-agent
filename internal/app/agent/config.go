@@ -10,6 +10,7 @@ import (
 )
 
 type rawConfig struct {
+	NATSServers   []string   `yaml:"natsServers"`   // Array of nats server endpopints.
 	VolumeSupport vol.Config `yaml:"volumeSupport"` // List of available volume types.
 }
 
@@ -33,4 +34,12 @@ func (nc *NodeConfig) SetVolumeConfig(vc vol.Config) {
 
 func (nc NodeConfig) VolumeConfig() vol.Config {
 	return nc.raw.VolumeSupport
+}
+
+func (nc *NodeConfig) SetNATSServers(uris []string) {
+	nc.raw.NATSServers = uris
+}
+
+func (nc NodeConfig) NATSServers() []string {
+	return nc.raw.NATSServers
 }
