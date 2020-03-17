@@ -6,69 +6,48 @@ package main
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/goreleaser/nfpm"
-	_ "github.com/goreleaser/nfpm/deb"
-	_ "github.com/goreleaser/nfpm/rpm"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
 
+// ldFlags returns standard linker flags to pass to various Go commands.
+func ldFlags() string {
+	d, err := describeHead()
+	if err != nil {
+		return "-X main.version=unknown"
+	}
+	return fmt.Sprintf("-X main.version=%s", d)
+}
+
 // Build creates a binary in the current directory.
 func Build() error {
-	fmt.Println("Building Fuzzball agent")
-	return sh.Run("go", "build", "./cmd/fuzzball-agent")
+	return sh.Run("go", "build", "-ldflags", ldFlags(), "./cmd/fuzzball-agent")
 }
 
 // Install installs the agent binary in $GOBIN.
 func Install() error {
-	fmt.Println("Installing Fuzzball agent")
-	return sh.Run("go", "install", "./cmd/fuzzball-agent")
+	return sh.Run("go", "install", "-ldflags", ldFlags(), "./cmd/fuzzball-agent")
 }
 
-// pack creates a package based on the supplied suffix.
-func pack(suffix string) error {
-	mg.Deps(Build)
+// Run runs the Agent using `go run`.
+func Run() error {
+	return sh.RunV(mg.GoCmd(), "run", "-ldflags", ldFlags(), "./cmd/fuzzball-agent/")
+}
 
-	fmt.Printf("Packaging Fuzzball agent as %s\n", suffix)
-	config, err := nfpm.ParseFile("nfpm.yaml")
-	if err != nil {
-		return err
-	}
-
-	info, err := config.Get(suffix)
-	if err != nil {
-		return err
-	}
-	info.Target = "fuzzball-agent." + suffix
-
-	info = nfpm.WithDefaults(info)
-
-	if err = nfpm.Validate(info); err != nil {
-		return err
-	}
-
-	p, err := nfpm.Get(suffix)
-	if err != nil {
-		return err
-	}
-
-	f, err := os.Create(info.Target)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	return p.Package(info, f)
+// Test runs unit tests using `go test`.
+func Test() error {
+	return sh.RunV(mg.GoCmd(), "test", "-ldflags", ldFlags(), "-cover", "-race", "./...")
 }
 
 // Deb builds a deb package.
 func Deb() error {
-	return pack("deb")
+	mg.Deps(Build)
+	return makePackage("deb")
 }
 
 // RPM builds a RPM package.
 func RPM() error {
-	return pack("rpm")
+	mg.Deps(Build)
+	return makePackage("rpm")
 }
