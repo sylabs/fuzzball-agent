@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/go-git/go-git/v5 v5.0.0
 	github.com/golang/protobuf v1.3.4 // indirect
-	github.com/goreleaser/nfpm v1.2.0
+	github.com/goreleaser/nfpm v1.2.1
 	github.com/magefile/mage v1.9.0
 	github.com/nats-io/nats-server/v2 v2.1.4 // indirect
 	github.com/nats-io/nats.go v1.9.1
