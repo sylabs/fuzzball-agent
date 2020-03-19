@@ -37,7 +37,7 @@ func (a *Agent) volumeCreateHandler(subject, reply string, v volume) {
 
 	// Send result.
 	res := struct {
-		err error
+		Err error
 	}{err}
 	if err := a.ec.Publish(fmt.Sprintf("volume.%v.create", v.ID), res); err != nil {
 		log.WithError(err).Warn("failed to report volume creation")
@@ -66,7 +66,7 @@ func (a *Agent) volumeDeleteHandler(subject, reply string, v volume) {
 
 	// Send result.
 	res := struct {
-		err error
+		Err error
 	}{err}
 	if err := a.ec.Publish(fmt.Sprintf("volume.%v.delete", v.ID), res); err != nil {
 		log.WithError(err).Warn("failed to report volume deletion")
