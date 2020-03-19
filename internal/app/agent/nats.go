@@ -73,6 +73,8 @@ func (a Agent) subscribe() error {
 		{fmt.Sprintf("node.%s.job.start", a.id), a.jobStartHandler},
 		{fmt.Sprintf("node.%s.volume.create", a.id), a.volumeCreateHandler},
 		{fmt.Sprintf("node.%s.volume.delete", a.id), a.volumeDeleteHandler},
+		{fmt.Sprintf("node.%s.image.cached", a.id), a.imageCachedHandler},
+		{fmt.Sprintf("node.%s.image.download", a.id), a.imageDownloadHandler},
 	}
 	for _, s := range subs {
 		if _, err := a.ec.Subscribe(s.subject, s.handler); err != nil {

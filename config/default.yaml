@@ -8,3 +8,5 @@ volumeSupport:
   # Here you can add a path to persistent storage for the agent to conditionally expose during workflow execution.
   #persistent:
   #  location: /path/to/persistent/storage
+cacheConfig:
+  cacheDir: /home/fuzzball/.cache

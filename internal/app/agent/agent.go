@@ -7,6 +7,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
+	"github.com/sylabs/fuzzball-agent/internal/pkg/cache"
 	vol "github.com/sylabs/fuzzball-agent/internal/pkg/volume"
 )
 
@@ -20,6 +21,7 @@ type Agent struct {
 	nc *nats.Conn
 	ec *nats.EncodedConn
 	vm *vol.Manager
+	c  *cache.Cache
 	id string
 }
 
@@ -34,6 +36,10 @@ func New(c Config) (a Agent, err error) {
 	}
 
 	if a.nc, a.ec, err = connect(c); err != nil {
+		return Agent{}, err
+	}
+
+	if a.c, err = cache.New(c.NodeConfig.CacheConfig()); err != nil {
 		return Agent{}, err
 	}
 

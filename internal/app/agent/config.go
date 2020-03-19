@@ -5,13 +5,15 @@ package agent
 import (
 	"io"
 
+	"github.com/sylabs/fuzzball-agent/internal/pkg/cache"
 	vol "github.com/sylabs/fuzzball-agent/internal/pkg/volume"
 	"gopkg.in/yaml.v3"
 )
 
 type rawConfig struct {
-	NATSServers   []string   `yaml:"natsServers"`   // Array of nats server endpopints.
-	VolumeSupport vol.Config `yaml:"volumeSupport"` // List of available volume types.
+	NATSServers   []string     `yaml:"natsServers"`   // Array of nats server endpopints.
+	VolumeSupport vol.Config   `yaml:"volumeSupport"` // List of available volume types.
+	CacheConfig   cache.Config `yaml:"cacheConfig"`   // Description of fs location to store temporary data.
 }
 
 // NodeConfig represents a configuration.
@@ -28,6 +30,14 @@ func Read(r io.Reader) (*NodeConfig, error) {
 	return &c, nil
 }
 
+func (nc *NodeConfig) SetNATSServers(uris []string) {
+	nc.raw.NATSServers = uris
+}
+
+func (nc NodeConfig) NATSServers() []string {
+	return nc.raw.NATSServers
+}
+
 func (nc *NodeConfig) SetVolumeConfig(vc vol.Config) {
 	nc.raw.VolumeSupport = vc
 }
@@ -36,10 +46,10 @@ func (nc NodeConfig) VolumeConfig() vol.Config {
 	return nc.raw.VolumeSupport
 }
 
-func (nc *NodeConfig) SetNATSServers(uris []string) {
-	nc.raw.NATSServers = uris
+func (nc *NodeConfig) SetCacheConfig(cc cache.Config) {
+	nc.raw.CacheConfig = cc
 }
 
-func (nc NodeConfig) NATSServers() []string {
-	return nc.raw.NATSServers
+func (nc NodeConfig) CacheConfig() cache.Config {
+	return nc.raw.CacheConfig
 }
