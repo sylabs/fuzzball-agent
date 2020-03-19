@@ -42,7 +42,7 @@ func (a *Agent) imageDownloadHandler(subject, reply string, i image) {
 
 	// Send result.
 	res := struct {
-		err error
+		Err error
 	}{err}
 	if err := a.ec.Publish("image.download", res); err != nil {
 		log.WithError(err).Warn("failed to report image download")
@@ -118,7 +118,7 @@ func (a *Agent) imageCachedHandler(subject, reply string, hash string) {
 	log.Infof("entry exists: %v", entry.Exists())
 	// Send result.
 	res := struct {
-		exists bool
+		Exists bool
 	}{entry.Exists()}
 	if err := a.ec.Publish("image.cached", res); err != nil {
 		log.WithError(err).Warn("failed to report image cache check")
