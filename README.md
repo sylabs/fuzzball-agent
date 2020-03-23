@@ -46,3 +46,7 @@ To build a `.deb` and/or `.rpm`:
 mage deb
 mage rpm
 ```
+
+## License
+
+This project is licensed under a 3-clause BSD license found in the [license file](LICENSE.md).
