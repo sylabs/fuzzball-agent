@@ -21,9 +21,13 @@ const (
 )
 
 var (
-	version = "unknown"
-
 	configPath = flag.String("config_path", "/etc/fuzzball/config.yaml", "Path to agent configuration on node")
+
+	// Values set during build.
+	builtAt      = ""
+	gitCommit    = ""
+	gitTreeState = ""
+	gitVersion   = ""
 )
 
 // signalHandler catches SIGINT/SIGTERM to perform an orderly shutdown.
@@ -92,10 +96,21 @@ func main() {
 	flag.Parse()
 
 	log := logrus.WithFields(logrus.Fields{
-		"org":     org,
-		"name":    name,
-		"version": version,
+		"org":  org,
+		"name": name,
 	})
+	if builtAt != "" {
+		log = log.WithField("builtAt", builtAt)
+	}
+	if gitCommit != "" {
+		log = log.WithField("gitCommit", gitCommit)
+	}
+	if gitTreeState != "" {
+		log = log.WithField("gitTreeState", gitTreeState)
+	}
+	if gitVersion != "" {
+		log = log.WithField("gitVersion", gitVersion)
+	}
 	log.Info("starting")
 	defer log.Info("stopped")
 

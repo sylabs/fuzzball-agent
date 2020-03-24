@@ -19,7 +19,12 @@ func getPackageInfo(c nfpm.Config, format string) (*nfpm.Info, error) {
 	if err != nil {
 		return nil, err
 	}
-	c.Version = d.String()
+
+	v, err := getVersion(d)
+	if err != nil {
+		return nil, err
+	}
+	c.Version = v.String()
 
 	info, err := c.Get(format)
 	if err != nil {
