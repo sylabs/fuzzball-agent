@@ -11,6 +11,6 @@ require (
 	github.com/nats-io/nats-server/v2 v2.1.4 // indirect
 	github.com/nats-io/nats.go v1.9.2
 	github.com/sirupsen/logrus v1.5.0
-	github.com/sylabs/scs-library-client v0.5.1
-	gopkg.in/yaml.v3 v3.0.0-20200121175148-a6ecf24a6d71
+	github.com/sylabs/scs-library-client v0.5.4
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 )
